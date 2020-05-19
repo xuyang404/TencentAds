@@ -2,7 +2,6 @@
     "name": "lanhai/tencentads",
     "description": "tencentads for lanhai",
     "version": "1.0",
-    "license": "MIT",
     "autoload": {
         "psr-4": {
             "LanHai\\TencentAds\\":"app"
