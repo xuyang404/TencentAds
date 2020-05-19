@@ -1,0 +1,19 @@
+{
+    "name": "lanhai/tencentads",
+    "description": "tencentads for lanhai",
+    "version": "1.0",
+    "autoload": {
+        "psr-4": {
+            "LanHai\\TencentAds\\":"app"
+        }
+    },
+    "authors": [
+        {
+            "name": "y",
+            "email": "914795561@qq.com"
+        }
+    ],
+    "require": {
+        "php-curl-class/php-curl-class": "^8.8"
+    }
+}
