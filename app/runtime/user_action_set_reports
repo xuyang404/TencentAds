@@ -1,1 +1,1 @@
-["date","hour","domain","raw_action_count","identified_action_count","identified_user_count"]
+["date","hour","domain","action_type","custom_action","raw_action_count","identified_action_count","identified_user_count"]

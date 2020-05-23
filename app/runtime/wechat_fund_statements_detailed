@@ -1,1 +1,1 @@
-["trade_type","time","amount","fund_type","description"]
+["trade_type","time","amount","wechat_account_id","wechat_account_name","fund_type","external_bill_no","description","operator","bill_no","repayment_channel_type","company_name","contact_name","contact_phone","status"]

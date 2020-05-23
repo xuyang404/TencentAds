@@ -1,1 +1,1 @@
-["tag_id","custom_tag_file_id","user_id_type","created_time"]
+["tag_id","custom_tag_file_id","name","user_id_type","operation_type","open_app_id","process_status","process_code","error_message","line_count","valid_line_count","user_count","created_time"]

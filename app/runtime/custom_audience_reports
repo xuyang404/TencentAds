@@ -1,1 +1,1 @@
-["account_id","audience_id","action_type","cost","action_count","user_count"]
+["audience_id","account_id","adgroup_id","campaign_id","wechat_adgroup_id","wechat_campaign_id","model_id","audience_predict_task_id","action_type","cost","action_count","user_count"]

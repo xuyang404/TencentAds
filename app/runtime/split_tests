@@ -1,1 +1,1 @@
-["split_test_id","split_test_status","split_test_name","adgroup_id_list","smart_expand_enabled","begin_time","end_time","recommended_rating","recommended_adgroup_id_list"]
+["account_id","split_test_id","split_test_status","split_test_name","begin_time","end_time","smart_expand_enabled","adgroup_id_list","recommended_rating","recommended_adgroup_id_list"]

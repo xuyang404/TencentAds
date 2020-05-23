@@ -1,1 +1,1 @@
-["audience_id","account_id","name","outer_audience_id","description","type","status","error_code","user_count","created_time","last_modified_time"]
+["audience_id","account_id","name","external_audience_id","description","type","status","error_code","user_count","created_time","last_modified_time","audience_spec"]

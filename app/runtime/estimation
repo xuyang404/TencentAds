@@ -1,1 +1,1 @@
-["max_active_user_count","approximate_count","impression","min_bid_amount","max_bid_amount","suggest_targeting"]
+["max_active_user_count","approximate_count","impression","min_bid_amount","max_bid_amount","suggest_min_bid_amount","suggest_max_bid_amount","suggest_bid_content_ocpa","min_users_daily","max_users_daily","min_exposure_daily","max_exposure_daily","targeting_status","suggest_targeting","is_real_exposure_supported"]

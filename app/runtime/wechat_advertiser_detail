@@ -1,1 +1,1 @@
-["account_id","system_industry_id","corporation_name","agency_id_list","staff_wechat_id_list"]
+["account_id","wechat_account_name","system_industry_id","wechat_account_id","account_type","corporation_name","auth_status","auth_time","agency_id_list","staff_wechat_id_list","daily_budget"]
