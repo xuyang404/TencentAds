@@ -4,6 +4,7 @@ namespace LanHai\TencentAds;
 
 use Curl\Curl;
 use LanHai\TencentAds\Cache\FileCache;
+use LanHai\TencentAds\Client\AsyncClient;
 
 class Request
 {
@@ -96,7 +97,11 @@ class Request
     {
         $data = $this->buildRequestData($url, $data);
         $host = $this->config->getHost();
-        $resp = $this->request->get($host . '/' . $url, $data);
+        $this->request->get($host . '/' . $url, $data);
+        $resp = $this->request->getResponse();
+        if (is_string($resp)) {
+            return json_decode($resp, true);
+        }
         return json_decode(json_encode($resp), true);
     }
 
@@ -106,8 +111,33 @@ class Request
         $query = $data['query'];
         unset($data['query']);
         $host = $this->config->getHost();
-        $resp = $this->request->post($host . '/' . $url.'?'.$query, $data);
+        $this->request->post($host . '/' . $url.'?'.$query, $data);
+        $resp = $this->request->getResponse();
+        if (is_string($resp)) {
+            return json_decode($resp, true);
+        }
         return json_decode(json_encode($resp), true);
+    }
+
+    /**
+     * getResponse
+     *
+     * @return void
+     */
+    public function getResponse()
+    {
+        return $this->request->getResponse();
+    }
+
+    /**
+     * 使用协程请求客户端
+     *
+     * @return Request
+     */
+    public function async()
+    {
+        $this->request = AsyncClient::getDefaultClient();
+        return $this;
     }
 
     /**
@@ -163,11 +193,7 @@ class Request
     {
         if (!isset($data['fields']) && ($action == 'get')) {
             $name = explode("/", $url)[0];
-            $fields = $this->cache->get($name);
-            // if (!$fields) {
-            //     $fields = $this->getFields($name, $url);
-            //     $this->cache->set($name, $fields);
-            // }           
+            $fields = $this->cache->get($name);        
             $data['fields'] = $fields;
         }
 
@@ -191,46 +217,6 @@ class Request
         return $data;
     }
 
-    // /**
-    //  * get Fields
-    //  *
-    //  * @param string $url
-    //  * @return void
-    //  */
-    // protected function getFields(string $name, string $url) {
-    //     $url  = str_replace("/","_", $url);
-    //     $resp = $this->request->get("https://developers.e.qq.com/docs/api/adsmanagement/{$name}/{$url}?version=1.2");
-    //     preg_match("/\<code class=\"Json hljs\"\>([\s\S]+)\<\/code\>/" ,$resp, $matches);
-    //     $list = json_decode($matches[1], true)['data']['list'];
-    //     $fields = array_keys($list[0]);
-    //     return $fields;
-    // }
-
-    // /**
-    //  * build Response Data
-    //  *
-    //  * @param array $resp
-    //  * @return array
-    //  */
-    // protected function buildResponseData(string $url, array $data, array $resp)
-    // {
-        
-    //     if (!isset($resp['code'])) {
-    //         return $resp;
-    //     }
-
-    //     if (in_array($resp['code'], $this->errCode)) {
-    //         preg_match("/\[(.*?)\]/", $resp['message'], $matches);
-    //         $fields = explode(',', $matches[1]);
-    //         $name = explode("/", $url)[0];
-    //         $this->cache->set($name, $fields);
-    //         $data['fields'] = $fields;
-    //         $resp = $this->get($url, $data);
-    //     }
-
-    //     return json_decode(json_encode($resp), true);
-    // }
-
     /**
      * 设置需要处理的code，避免它再加
      *
@@ -253,6 +239,12 @@ class Request
         return $this->errCode;
     }
 
+    public function setClient($client)
+    {
+       $this->request = $client;
+       return $this;
+    }
+
     /**
      * getInstance
      *
@@ -272,7 +264,7 @@ class Request
      * @return Curl
      */
     public static function getClient()
-    {
+    {   
         if (!self::$client) {
             self::$client = new Curl();
         }
