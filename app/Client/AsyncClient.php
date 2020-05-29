@@ -83,9 +83,11 @@ class AsyncClient implements ClientInterface
      */
     public static function getClient()
     {
-        if (!self::$client) {
-            self::$client = new HttpClient();
-        }
-        return self::$client;
+        // if (!self::$client) {
+        //     self::$client = new HttpClient();
+        // }
+        // return self::$client;
+
+        return new HttpClient();
     }
 }
