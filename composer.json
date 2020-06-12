@@ -1,7 +1,7 @@
 {
     "name": "lanhai/tencentads",
     "description": "tencentads for lanhai",
-    "version": "1.5",
+    "version": "1.6",
     "license": "MIT",
     "autoload": {
         "psr-4": {
