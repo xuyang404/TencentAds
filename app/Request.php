@@ -3,8 +3,10 @@
 namespace LanHai\TencentAds;
 
 use Curl\Curl;
+use GuzzleHttp\Client;
 use LanHai\TencentAds\Cache\FileCache;
 use LanHai\TencentAds\Client\AsyncClient;
+use LanHai\TencentAds\Interfaces\ClientInterface;
 
 class Request
 {
@@ -26,7 +28,7 @@ class Request
     /**
      * $request
      *
-     * @var Curl
+     * @var ClientInterface
      */
     protected $request;
 
@@ -91,7 +93,7 @@ class Request
      *
      * @param string $url
      * @param array $data
-     * @return void
+     * @return array
      */
     public function get(string $url, array $data = [])
     {
@@ -134,9 +136,9 @@ class Request
      *
      * @return Request
      */
-    public function async()
+    public function async(Client $client) :Request
     {
-        $this->request = AsyncClient::getDefaultClient();
+        $this->request = AsyncClient::getDefaultClient()::setClient($client);
         return $this;
     }
 
@@ -155,7 +157,7 @@ class Request
      *
      * @return Config
      */
-    public function setConfig(Config $config)
+    public function setConfig(Config $config) :Request
     {
         $this->config = $config;
         return $this;
@@ -176,7 +178,7 @@ class Request
      *
      * @return Request
      */
-    public function setCache($cache)
+    public function setCache($cache) :Request
     {
         $this->cache = $cache;
         return $this;
@@ -189,7 +191,7 @@ class Request
      * @param array $data
      * @return array
      */
-    protected function buildRequestData(string $url, array $data, string $action = 'get')
+    protected function buildRequestData(string $url, array $data, $action = 'get')
     {
         if (!isset($data['fields']) && ($action == 'get')) {
             $name = explode("/", $url)[0];
@@ -223,7 +225,7 @@ class Request
      * @param array $codes
      * @return void
      */
-    public function setErrCode(array $codes = [])
+    public function setErrCode(array $codes = []) :Request
     {
         $this->errCode = $codes;
         return $this;
@@ -239,7 +241,7 @@ class Request
         return $this->errCode;
     }
 
-    public function setClient($client)
+    public function setClient($client) :Request
     {
        $this->request = $client;
        return $this;
