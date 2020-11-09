@@ -33,7 +33,7 @@ class Config {
      * set host
      *
      * @param string $host
-     * @return Config
+     * @return void
      */
     public function setHost(string $host) {
         $this->host = $host;
@@ -44,7 +44,7 @@ class Config {
      * get host
      *
      * @param [type] $host
-     * @return string
+     * @return void
      */
     public function getHost() {
         return $this->host;
@@ -66,7 +66,7 @@ class Config {
     /**
      * getApiKeys
      *
-     * @return array
+     * @return Config
      */
     public function getApiKeys() {
        return $this->apiKeys;
@@ -104,6 +104,10 @@ class Config {
      */
     public static function getDefaultConfiguration()
     {
-        return new Config();
+        if (self::$defaultConfiguration === null) {
+            self::$defaultConfiguration = new Config();
+        }
+
+        return self::$defaultConfiguration;
     }
 }

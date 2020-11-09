@@ -2,7 +2,6 @@
 
 namespace LanHai\TencentAds\Client;
 
-use GuzzleHttp\Client;
 use LanHai\TencentAds\Interfaces\ClientInterface;
 use Curl\Curl;
 
@@ -99,10 +98,5 @@ class CurlClient implements ClientInterface
             self::$client = new Curl();
         }
         return self::$client;
-    }
-
-    public static function setClient(Client $client)
-    {
-        // TODO: Implement setClient() method.
     }
 }

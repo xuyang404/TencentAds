@@ -2,8 +2,8 @@
 
 namespace LanHai\TencentAds\Client;
 
-use GuzzleHttp\Client;
 use LanHai\TencentAds\Interfaces\ClientInterface;
+use EasySwoole\HttpClient\HttpClient;
 
 class AsyncClient implements ClientInterface
 {
@@ -16,9 +16,9 @@ class AsyncClient implements ClientInterface
     protected static $instance;
 
     /**
-     * @var Client
+     * @var \EasySwoole\HttpClient\HttpClient
      */
-    protected $client;
+    protected static $client;
 
     /**
      * response
@@ -32,18 +32,18 @@ class AsyncClient implements ClientInterface
     public function get(string $url, array $data)
     {   $instance = $this->getDefaultClient();
         $client = $instance->getClient();
-        $response = $client->get($url.'?'.http_build_query($data));
-        $this->response = $response->getBody()->getContents();
-        return $this;
+        $client->setUrl($url.'?'.http_build_query($data));
+        $resp = $client->get();
+        $this->response = $resp->getBody();
+        return $this;;
     }
     public function post(string $url, array $data)
     {
         $instance = $this->getDefaultClient();
         $client = $instance->getClient();
-        $response = $client->request('POST', $url, [
-            'form_params' => $data
-        ]);
-        $this->response = $response->getBody()->getContents();
+        $client = $client->setUrl($url);
+        $resp = $client->post($data);
+        $this->response = $resp->getBody();
         return $this;
     }
     public function put(string $url, array $data)
@@ -79,16 +79,15 @@ class AsyncClient implements ClientInterface
     /**
      * getCurl
      *
-     * @return Client
+     * @return \EasySwoole\HttpClient\HttpClient
      */
     public static function getClient()
     {
-        return self::$instance->client;
-    }
+        // if (!self::$client) {
+        //     self::$client = new HttpClient();
+        // }
+        // return self::$client;
 
-    public static function setClient(Client $client)
-    {
-        self::$instance->client = $client;
-        return self::$instance;
+        return new HttpClient();
     }
 }

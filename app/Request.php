@@ -3,10 +3,8 @@
 namespace LanHai\TencentAds;
 
 use Curl\Curl;
-use GuzzleHttp\Client;
 use LanHai\TencentAds\Cache\FileCache;
 use LanHai\TencentAds\Client\AsyncClient;
-use LanHai\TencentAds\Interfaces\ClientInterface;
 
 class Request
 {
@@ -28,7 +26,7 @@ class Request
     /**
      * $request
      *
-     * @var ClientInterface
+     * @var Curl
      */
     protected $request;
 
@@ -93,7 +91,7 @@ class Request
      *
      * @param string $url
      * @param array $data
-     * @return array
+     * @return void
      */
     public function get(string $url, array $data = [])
     {
@@ -136,17 +134,9 @@ class Request
      *
      * @return Request
      */
-    public function async(Client $client = null) :Request
+    public function async()
     {
-        if (!(self::$client instanceof \GuzzleHttp\Client)) {
-            self::$client = new \GuzzleHttp\Client();
-        }
-
-        if ($client) {
-            self::$client = $client;
-        }
-
-        $this->request = AsyncClient::getDefaultClient()::setClient(self::$client);
+        $this->request = AsyncClient::getDefaultClient();
         return $this;
     }
 
@@ -165,7 +155,7 @@ class Request
      *
      * @return Config
      */
-    public function setConfig(Config $config) :Request
+    public function setConfig(Config $config)
     {
         $this->config = $config;
         return $this;
@@ -186,7 +176,7 @@ class Request
      *
      * @return Request
      */
-    public function setCache($cache) :Request
+    public function setCache($cache)
     {
         $this->cache = $cache;
         return $this;
@@ -199,7 +189,7 @@ class Request
      * @param array $data
      * @return array
      */
-    protected function buildRequestData(string $url, array $data, $action = 'get')
+    protected function buildRequestData(string $url, array $data, string $action = 'get')
     {
         if (!isset($data['fields']) && ($action == 'get')) {
             $name = explode("/", $url)[0];
@@ -218,9 +208,7 @@ class Request
         }else{
             $params = $this->config->getApiKeys();
             foreach ($params as $key => $value) {
-                if (!isset($data[$key])) {
-                    $data[$key] = $value;
-                }
+                $data[$key] = $value;
             }
             $data['nonce'] = uniqid(time() . rand(0, 1000));
             $data['timestamp'] = time();
@@ -235,7 +223,7 @@ class Request
      * @param array $codes
      * @return void
      */
-    public function setErrCode(array $codes = []) :Request
+    public function setErrCode(array $codes = [])
     {
         $this->errCode = $codes;
         return $this;
@@ -251,7 +239,7 @@ class Request
         return $this->errCode;
     }
 
-    public function setClient($client) :Request
+    public function setClient($client)
     {
        $this->request = $client;
        return $this;
@@ -264,7 +252,10 @@ class Request
      */
     public static function getInstance()
     {
-        return new self();
+        if (!self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
     }
 
     /**
@@ -274,7 +265,7 @@ class Request
      */
     public static function getClient()
     {   
-        if (!(self::$client instanceof Curl)) {
+        if (!self::$client) {
             self::$client = new Curl();
         }
         return self::$client;
