@@ -136,9 +136,17 @@ class Request
      *
      * @return Request
      */
-    public function async(Client $client) :Request
+    public function async(Client $client = null) :Request
     {
-        $this->request = AsyncClient::getDefaultClient()::setClient($client);
+        if (!(self::$client instanceof \GuzzleHttp\Client)) {
+            self::$client = new \GuzzleHttp\Client();
+        }
+
+        if ($client) {
+            self::$client = $client;
+        }
+
+        $this->request = AsyncClient::getDefaultClient()::setClient(self::$client);
         return $this;
     }
 
@@ -267,7 +275,7 @@ class Request
      */
     public static function getClient()
     {   
-        if (!self::$client) {
+        if (!(self::$client instanceof Curl)) {
             self::$client = new Curl();
         }
         return self::$client;

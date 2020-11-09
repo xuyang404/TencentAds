@@ -104,10 +104,6 @@ class Config {
      */
     public static function getDefaultConfiguration()
     {
-        if (self::$defaultConfiguration === null) {
-            self::$defaultConfiguration = new Config();
-        }
-
-        return self::$defaultConfiguration;
+        return new Config();
     }
 }
