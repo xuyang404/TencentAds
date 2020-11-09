@@ -208,7 +208,9 @@ class Request
         }else{
             $params = $this->config->getApiKeys();
             foreach ($params as $key => $value) {
-                $data[$key] = $value;
+                if (!isset($data[$key])) {
+                    $data[$key] = $value;
+                }
             }
             $data['nonce'] = uniqid(time() . rand(0, 1000));
             $data['timestamp'] = time();
