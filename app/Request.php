@@ -262,10 +262,7 @@ class Request
      */
     public static function getInstance()
     {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
+        return new self();
     }
 
     /**
