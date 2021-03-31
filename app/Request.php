@@ -2,9 +2,17 @@
 
 namespace LanHai\TencentAds;
 
-use Curl\Curl;
+
 use LanHai\TencentAds\Cache\FileCache;
-use LanHai\TencentAds\Client\AsyncClient;
+use LanHai\TencentAds\Interfaces\CacheInterface;
+use LanHai\TencentAds\Interfaces\ClientInterface;
+
+/**
+ * Class Request
+ * @package LanHai\TencentAds
+ * @method Request async()
+ * @method Request curl()
+ */
 
 class Request
 {
@@ -17,42 +25,27 @@ class Request
     protected static $instance;
 
     /**
-     * $client
-     *
-     * @var Curl
-     */
-    protected static $client;
-
-    /**
      * $request
      *
-     * @var Curl
+     * @var ClientInterface
      */
     protected $request;
 
     /**
-     * $config
-     *
-     * @var Config
+     * @var string
      */
-    protected $config;
+    protected $host = "https://api.e.qq.com/v1.1";
 
     /**
-     * $config
-     *
-     * @var FileCache
+     * @var array
+     */
+    protected $apiKeys = [];
+
+    /**
+     * @var CacheInterface
      */
     protected $cache;
 
-    /**
-     * buildRespone中需要处理的code
-     *
-     * @var array
-     */
-    protected $errCode = [
-        31017,
-        18009
-    ];
 
     protected function __construct()
     {
@@ -66,11 +59,13 @@ class Request
      */
     public static function init(array $config = [])
     {
+        foreach (Providers::$providers as $provider) {
+            $provider::register();
+        }
+
         $instance = self::getInstance();
-        $instance->config = Config::getDefaultConfiguration();
-        $instance->request = self::getClient();
         $instance->cache = FileCache::getDefaultCache();
-        $instance->config->setApiKeys($config);
+        $instance->setApiKeys($config);
         return $instance;
     }
 
@@ -82,7 +77,7 @@ class Request
      */
     public function setHost(string $host)
     {
-        $this->config->setHost($host);
+        $this->host = $host;
         return $this;
     }
 
@@ -96,7 +91,7 @@ class Request
     public function get(string $url, array $data = [])
     {
         $data = $this->buildRequestData($url, $data);
-        $host = $this->config->getHost();
+        $host = $this->getHost();
         $this->request->get($host . '/' . $url, $data);
         $resp = $this->request->getResponse();
         if (is_string($resp)) {
@@ -106,11 +101,11 @@ class Request
     }
 
     public function post(string $url, array $data = [])
-    {   
+    {
         $data = $this->buildRequestData($url, $data, 'post');
         $query = $data['query'];
         unset($data['query']);
-        $host = $this->config->getHost();
+        $host = $this->getHost();
         $this->request->post($host . '/' . $url.'?'.$query, $data);
         $resp = $this->request->getResponse();
         if (is_string($resp)) {
@@ -130,59 +125,6 @@ class Request
     }
 
     /**
-     * 使用协程请求客户端
-     *
-     * @return Request
-     */
-    public function async()
-    {
-        $this->request = AsyncClient::getDefaultClient();
-        return $this;
-    }
-
-    /**
-     * getConfig
-     *
-     * @return Config
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-    /**
-     * setConfig
-     *
-     * @return Config
-     */
-    public function setConfig(Config $config)
-    {
-        $this->config = $config;
-        return $this;
-    }
-
-    /**
-     * get Cache
-     *
-     * @return
-     */
-    public function getCache()
-    {
-        return $this->cache;
-    }
-
-    /**
-     * get Cache
-     *
-     * @return Request
-     */
-    public function setCache($cache)
-    {
-        $this->cache = $cache;
-        return $this;
-    }
-
-    /**
      * build Request Data
      *
      * @param string $url
@@ -191,22 +133,25 @@ class Request
      */
     protected function buildRequestData(string $url, array $data, string $action = 'get')
     {
+
         if (!isset($data['fields']) && ($action == 'get')) {
             $name = explode("/", $url)[0];
-            $fields = $this->cache->get($name);        
+            $fields = $this->cache->get($name);
             $data['fields'] = $fields;
         }
 
         if ($action == 'post') {
-            $params = $this->config->getApiKeys();
+            $params = $this->getApiKeys();
             foreach ($params as $key => $value) {
-                $data['query'][$key] = $value;
+                if (!isset($data['query'][$key])) {
+                    $data['query'][$key] = $value;
+                }
             }
             $data['query']['nonce'] = uniqid(time() . rand(0, 1000));
             $data['query']['timestamp'] = time();
             $data['query'] = http_build_query($data['query']);
         }else{
-            $params = $this->config->getApiKeys();
+            $params = $this->getApiKeys();
             foreach ($params as $key => $value) {
                 if (!isset($data[$key])) {
                     $data[$key] = $value;
@@ -217,34 +162,6 @@ class Request
         }
 
         return $data;
-    }
-
-    /**
-     * 设置需要处理的code，避免它再加
-     *
-     * @param array $codes
-     * @return void
-     */
-    public function setErrCode(array $codes = [])
-    {
-        $this->errCode = $codes;
-        return $this;
-    }
-
-    /**
-     * getErrCode
-     *
-     * @return array
-     */
-    public function getErrCode()
-    {
-        return $this->errCode;
-    }
-
-    public function setClient($client)
-    {
-       $this->request = $client;
-       return $this;
     }
 
     /**
@@ -261,15 +178,69 @@ class Request
     }
 
     /**
-     * getClient
-     *
-     * @return Curl
+     * @return string
      */
-    public static function getClient()
-    {   
-        if (!self::$client) {
-            self::$client = new Curl();
-        }
-        return self::$client;
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * @return array
+     */
+    public function getApiKeys()
+    {
+        return $this->apiKeys;
+    }
+
+    /**
+     * @param array $apiKeys
+     */
+    public function setApiKeys($apiKeys)
+    {
+        $this->apiKeys = $apiKeys;
+    }
+
+    /**
+     * @return ClientInterface
+     */
+    public function getRequest(): ClientInterface
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param ClientInterface $request
+     */
+    public function setRequest(ClientInterface $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @param $method
+     * @param $args
+     * @return $this
+     */
+    public function __call($method, $args) :Request {
+        $this->request = Container::make($method, $args);
+        return $this;
+    }
+
+    /**
+     * @return CacheInterface
+     */
+    public function getCache(): CacheInterface
+    {
+        return $this->cache;
+    }
+
+    /**
+     * @param CacheInterface $cache
+     */
+    public function setCache(CacheInterface $cache)
+    {
+        $this->cache = $cache;
     }
 }

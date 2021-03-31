@@ -39,7 +39,7 @@ class CurlClient implements ClientInterface
     public function get(string $url, array $data)
     {   $instance = $this->getDefaultClient();
         $client = $instance->getClient();
-        $this->response = $client->request->get($url, $data);
+        $this->response = $client->get($url, $data);
         return $this;
     }
 
@@ -54,7 +54,7 @@ class CurlClient implements ClientInterface
     {
         $instance = $this->getDefaultClient();
         $client = $instance->getClient();
-        $this->response = $client->request->post($url, $data);
+        $this->response = $client->post($url, $data);
         return $this;
     }
     public function put(string $url, array $data)
@@ -94,9 +94,11 @@ class CurlClient implements ClientInterface
      */
     public static function getClient()
     {
+
         if (!self::$client) {
             self::$client = new Curl();
         }
+
         return self::$client;
     }
 }
